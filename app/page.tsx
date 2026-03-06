@@ -73,7 +73,7 @@ function Login({onLogin}:{onLogin:(n:string)=>void}){
           <label style={{fontSize:'0.7rem',fontWeight:600,textTransform:'uppercase' as const,letterSpacing:'1.5px',color:'#526480',display:'block',marginBottom:6}}>Utilizador</label>
           <div style={{position:'relative'}}>
             <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',fontSize:17,color:'#526480'}}>👤</span>
-            <input type="text" placeholder="admin" value={u} onChange={e=>{setU(e.target.value);setErr('')}} onKeyDown={K} style={I} autoFocus/>
+            <input type="text" placeholder="Utilizador" value={u} onChange={e=>{setU(e.target.value);setErr('')}} onKeyDown={K} style={I} autoFocus/>
           </div>
         </div>
         <div style={{marginBottom:'1.5rem'}}>
@@ -88,14 +88,7 @@ function Login({onLogin}:{onLogin:(n:string)=>void}){
         <button onClick={go} disabled={load} style={{width:'100%',padding:'13px',borderRadius:12,border:'none',cursor:load?'not-allowed':'pointer',background:load?'#1c2940':'linear-gradient(135deg,#00c8f0,#0090c8)',color:load?'#526480':'#021020',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'0.95rem',letterSpacing:0.5,boxShadow:load?'none':'0 4px 20px rgba(0,200,240,0.3)',transition:'all 0.2s'}}>
           {load?'⏳ A verificar...':'🔐 Entrar no Sistema'}
         </button>
-        <div style={{marginTop:'1.5rem',padding:'12px 14px',background:'rgba(0,200,240,0.04)',border:'1px solid rgba(0,200,240,0.1)',borderRadius:10}}>
-          <div style={{fontSize:'0.68rem',color:'#526480',textTransform:'uppercase',letterSpacing:1.5,marginBottom:6,fontWeight:600}}>Credenciais Padrão</div>
-          <div style={{fontSize:'0.8rem',color:'#526480',lineHeight:2}}>
-            Utilizador: <code style={{color:'#00c8f0',background:'rgba(0,200,240,0.08)',padding:'1px 7px',borderRadius:4}}>admin</code>
-            <br/>Senha: <code style={{color:'#00c8f0',background:'rgba(0,200,240,0.08)',padding:'1px 7px',borderRadius:4}}>Klem@c/2022</code>
-          </div>
-        </div>
-        <div style={{textAlign:'center',marginTop:'1.25rem',fontSize:'0.7rem',color:'#3a4f6a'}}>Klemac Licença © 2025</div>
+        <div style={{textAlign:'center',marginTop:'1.5rem',fontSize:'0.7rem',color:'#3a4f6a'}}>Klemac Licença © 2025</div>
       </div>
       <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}`}</style>
     </div>
