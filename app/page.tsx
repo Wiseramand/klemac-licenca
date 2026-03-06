@@ -8,7 +8,7 @@ const CREDS = [
 const SW = ['Antivirus','Microsoft Office','Primavera','SICA','Zoom','Adobe Creative Cloud']
 const SWE: Record<string,string> = {'Antivirus':'🛡️','Microsoft Office':'💼','Primavera':'🌿','SICA':'⚙️','Zoom':'📹','Adobe Creative Cloud':'🎨'}
 const SWC: Record<string,string> = {'Antivirus':'#00c8f0','Microsoft Office':'#fbbf24','Primavera':'#34d399','SICA':'#a78bfa','Zoom':'#60a5fa','Adobe Creative Cloud':'#f87171'}
-const DEPT = ['Administração','Tecnologia de Informação','Recursos Humanos','Financeiro','Contabilidade','Jurídico','Operações','Marketing','Logística','Direcção Geral']
+const DEPT = ['Formação','Finanças','Administração','Recursos Humanos','Operações','Gestão de Tripulantes','TIC','Direcção Geral']
 const SEED = [
   {id:1,usuario:'Carlos Mendonça',email:'carlos@empresa.ao',departamento:'Tecnologia de Informação',software:'Antivirus',data_instalacao:'2024-01-15',data_expiracao:'2025-04-15',numero_licenca:'AV-2024-001',observacoes:''},
   {id:2,usuario:'Ana Silva',email:'ana@empresa.ao',departamento:'Recursos Humanos',software:'Microsoft Office',data_instalacao:'2024-03-01',data_expiracao:'2025-03-01',numero_licenca:'OFF-2024-002',observacoes:''},
