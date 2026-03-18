@@ -9,27 +9,38 @@ const SW = ['Antivirus','Microsoft Office','Primavera','SICA','Zoom','Adobe Crea
 const SWE: Record<string,string> = {'Antivirus':'🛡️','Microsoft Office':'💼','Primavera':'🌿','SICA':'⚙️','Zoom':'📹','Adobe Creative Cloud':'🎨'}
 const SWC: Record<string,string> = {'Antivirus':'#00c8f0','Microsoft Office':'#fbbf24','Primavera':'#34d399','SICA':'#a78bfa','Zoom':'#60a5fa','Adobe Creative Cloud':'#f87171'}
 const DEPT = ['Formação','Finanças','Administração','Recursos Humanos','Operações','Gestão de Tripulantes','TIC','Direcção Geral']
-const SEED = [
-  {id:1,usuario:'Carlos Mendonça',email:'carlos@empresa.ao',departamento:'Tecnologia de Informação',software:'Antivirus',data_instalacao:'2024-01-15',data_expiracao:'2025-04-15',numero_licenca:'AV-2024-001',observacoes:''},
-  {id:2,usuario:'Ana Silva',email:'ana@empresa.ao',departamento:'Recursos Humanos',software:'Microsoft Office',data_instalacao:'2024-03-01',data_expiracao:'2025-03-01',numero_licenca:'OFF-2024-002',observacoes:''},
-  {id:3,usuario:'João Baptista',email:'joao@empresa.ao',departamento:'Financeiro',software:'Primavera',data_instalacao:'2024-02-10',data_expiracao:'2025-04-06',numero_licenca:'PRI-2024-003',observacoes:'Licença Enterprise'},
-  {id:4,usuario:'Maria Luísa',email:'maria@empresa.ao',departamento:'Contabilidade',software:'SICA',data_instalacao:'2024-04-01',data_expiracao:'2025-04-10',numero_licenca:'SIC-2024-004',observacoes:''},
-  {id:5,usuario:'Pedro Neto',email:'pedro@empresa.ao',departamento:'Marketing',software:'Zoom',data_instalacao:'2024-05-20',data_expiracao:'2025-05-20',numero_licenca:'ZOM-2024-005',observacoes:''},
-  {id:6,usuario:'Sofia Costa',email:'sofia@empresa.ao',departamento:'Marketing',software:'Adobe Creative Cloud',data_instalacao:'2024-01-01',data_expiracao:'2025-03-20',numero_licenca:'ADO-2024-006',observacoes:''},
-  {id:7,usuario:'Luís Ferreira',email:'luis@empresa.ao',departamento:'Tecnologia de Informação',software:'Microsoft Office',data_instalacao:'2024-06-01',data_expiracao:'2025-06-01',numero_licenca:'OFF-2024-007',observacoes:''},
-  {id:8,usuario:'Teresa Gomes',email:'teresa@empresa.ao',departamento:'Administração',software:'Antivirus',data_instalacao:'2024-07-15',data_expiracao:'2025-07-15',numero_licenca:'AV-2024-008',observacoes:''},
-  {id:9,usuario:'António Dias',email:'antonio@empresa.ao',departamento:'Direcção Geral',software:'Zoom',data_instalacao:'2024-08-01',data_expiracao:'2025-04-20',numero_licenca:'ZOM-2024-009',observacoes:''},
-  {id:10,usuario:'Beatriz Lopes',email:'beatriz@empresa.ao',departamento:'Jurídico',software:'Microsoft Office',data_instalacao:'2024-09-01',data_expiracao:'2025-09-01',numero_licenca:'OFF-2024-010',observacoes:''},
-]
-type L = typeof SEED[0]
+
+type L = {
+  id: number;
+  usuario: string;
+  email: string | null;
+  departamento: string;
+  software: string;
+  data_instalacao: string;
+  data_expiracao: string;
+  numero_licenca: string | null;
+  observacoes: string | null;
+}
+
+const EF = {
+  usuario: '',
+  email: '',
+  departamento: '',
+  software: '',
+  data_instalacao: '',
+  data_expiracao: '',
+  numero_licenca: '',
+  observacoes: ''
+}
+
 function dd(e:string){const h=new Date();h.setHours(0,0,0,0);return Math.round((new Date(e+'T00:00:00').getTime()-h.getTime())/86400000)}
 function gs(e:string){const d=dd(e);if(d<0)return'expirada';if(d<=30)return'alerta';if(d<=60)return'atencao';return'ativa'}
 function fd(s:string){if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}
 function ini(n:string){return n.split(' ').slice(0,2).map((w:string)=>w[0]).join('').toUpperCase()}
+
 const SL:Record<string,string>={ativa:'Activa',atencao:'Atenção',alerta:'⚠️ Alerta',expirada:'❌ Expirada'}
 const SC:Record<string,string>={ativa:'#10b981',atencao:'#f97316',alerta:'#f59e0b',expirada:'#ef4444'}
 const SB:Record<string,string>={ativa:'rgba(16,185,129,0.12)',atencao:'rgba(249,115,22,0.12)',alerta:'rgba(245,158,11,0.12)',expirada:'rgba(239,68,68,0.12)'}
-const EF={usuario:'',email:'',departamento:'',software:'',data_instalacao:'',data_expiracao:'',numero_licenca:'',observacoes:''}
 
 function Login({onLogin}:{onLogin:(n:string)=>void}){
   const[u,setU]=useState('')
@@ -99,7 +110,6 @@ export default function Home(){
   const[auth,setAuth]=useState(false)
   const[nome,setNome]=useState('')
   const[lic,setLic]=useState<L[]>([])
-  const[nid,setNid]=useState(11)
   const[srch,setSrch]=useState('')
   const[fsw,setFsw]=useState('')
   const[fdp,setFdp]=useState('')
@@ -112,16 +122,31 @@ export default function Home(){
   const[toast,setToast]=useState<{m:string,t:string}|null>(null)
   const[sc,setSc]=useState('data_expiracao')
   const[sd,setSd]=useState(1)
+  const[loading,setLoading]=useState(true)
+
+  const fetchLicenses = async () => {
+    try {
+      const res = await fetch('/api/licenses')
+      if (res.ok) {
+        const data = await res.json()
+        setLic(data)
+      }
+    } catch (err) {
+      console.error('Fetch error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(()=>{
     const s=sessionStorage.getItem('ks')
     if(s){const p=JSON.parse(s);setAuth(true);setNome(p.n)}
-    const saved=localStorage.getItem('klem_lic')
-    if(saved){const d=JSON.parse(saved);setLic(d);setNid(Math.max(...d.map((l:L)=>l.id),0)+1)}
-    else setLic(SEED)
-  },[])
-  const sv=(d:L[])=>{localStorage.setItem('klem_lic',JSON.stringify(d));setLic(d)}
+    fetchLicenses()
+  }, [])
+
   const t=(m:string,tp:string)=>{setToast({m,t:tp});setTimeout(()=>setToast(null),3000)}
   const logout=()=>{sessionStorage.removeItem('ks');setAuth(false);setNome('')}
+  
   const fil=lic.filter(l=>{
     if(srch&&!l.usuario.toLowerCase().includes(srch.toLowerCase()))return false
     if(fsw&&l.software!==fsw)return false
@@ -133,22 +158,60 @@ export default function Home(){
     const bv=sc==='dias'?dd(b.data_expiracao):(b[sc as keyof L]||'').toString()
     return av<bv?-sd:av>bv?sd:0
   })
+
   const tot=lic.length
   const atv=lic.filter(l=>dd(l.data_expiracao)>60).length
   const alt=lic.filter(l=>{const d=dd(l.data_expiracao);return d>=0&&d<=30}).length
   const exp=lic.filter(l=>dd(l.data_expiracao)<0).length
+
   const oa=()=>{setEid(null);setForm({...EF,data_instalacao:new Date().toISOString().slice(0,10)});setSfm(true)}
-  const oe=(l:L)=>{setEid(l.id);setForm({usuario:l.usuario,email:l.email,departamento:l.departamento,software:l.software,data_instalacao:l.data_instalacao,data_expiracao:l.data_expiracao,numero_licenca:l.numero_licenca,observacoes:l.observacoes});setSfm(true)}
-  const sub=()=>{
+  const oe=(l:L)=>{setEid(l.id);setForm({usuario:l.usuario,email:l.email||'',departamento:l.departamento,software:l.software,data_instalacao:l.data_instalacao,data_expiracao:l.data_expiracao,numero_licenca:l.numero_licenca||'',observacoes:l.observacoes||''});setSfm(true)}
+
+  const sub=async()=>{
     if(!form.usuario||!form.departamento||!form.software||!form.data_instalacao||!form.data_expiracao){t('Preencha todos os campos obrigatórios.','e');return}
     if(form.data_expiracao<form.data_instalacao){t('Data de expiração não pode ser anterior à instalação.','e');return}
-    if(eid){sv(lic.map(l=>l.id===eid?{...l,...form}:l));t('Licença actualizada!','s')}
-    else{sv([...lic,{id:nid,...form}]);setNid(n=>n+1);t('Licença adicionada!','s')}
-    setSfm(false)
+    
+    try {
+      const url = eid ? `/api/licenses/${eid}` : '/api/licenses'
+      const method = eid ? 'PUT' : 'POST'
+      const res = await fetch(url, {
+        method,
+        body: JSON.stringify(form),
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (res.ok) {
+        await fetchLicenses()
+        t(eid ? 'Licença actualizada!' : 'Licença adicionada!', 's')
+        setSfm(false)
+      } else {
+        t('Erro ao salvar no servidor.', 'e')
+      }
+    } catch (err) {
+      t('Erro de ligação.', 'e')
+    }
   }
-  const del=()=>{sv(lic.filter(l=>l.id!==did));setSdl(false);t('Licença eliminada.','e')}
+
+  const del=async()=>{
+    if (!did) return
+    try {
+      const res = await fetch(`/api/licenses/${did}`, { method: 'DELETE' })
+      if (res.ok) {
+        await fetchLicenses()
+        setSdl(false)
+        t('Licença eliminada.', 'e')
+      } else {
+        t('Erro ao eliminar.', 'e')
+      }
+    } catch (err) {
+      t('Erro de ligação.', 'e')
+    }
+  }
+
   const hs=(col:string)=>{if(sc===col)setSd(d=>d*-1);else{setSc(col);setSd(1)}}
+
   if(!auth)return <Login onLogin={(n)=>{setAuth(true);setNome(n)}}/>
+
   const s:Record<string,React.CSSProperties>={
     hd:{background:'linear-gradient(180deg,#0a1628,#0f1c2e)',borderBottom:'1px solid #1e3050',padding:'0 2rem',display:'flex',alignItems:'center',justifyContent:'space-between',height:'68px',position:'sticky',top:0,zIndex:200,boxShadow:'0 4px 40px rgba(0,0,0,0.4)'},
     li:{width:42,height:42,borderRadius:12,background:'linear-gradient(135deg,#00c8f0,#6d28d9)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:20,color:'#fff'},
@@ -165,6 +228,7 @@ export default function Home(){
     th:{padding:'11px 16px',textAlign:'left' as const,fontSize:'0.68rem',textTransform:'uppercase' as const,letterSpacing:'1.8px',color:'#526480',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap' as const,background:'#162035'},
     td:{padding:'13px 16px',fontSize:'0.875rem',verticalAlign:'middle' as const,borderBottom:'1px solid rgba(30,48,80,0.5)'},
   }
+
   return(
     <div style={{minHeight:'100vh'}}>
       {toast&&<div style={{position:'fixed',top:80,right:20,zIndex:999,padding:'12px 18px',borderRadius:12,fontSize:'0.875rem',fontWeight:500,boxShadow:'0 8px 30px rgba(0,0,0,0.4)',background:toast.t==='s'?'#052e16':'#2d0a0a',border:`1px solid ${toast.t==='s'?'#14532d':'#7f1d1d'}`,color:toast.t==='s'?'#4ade80':'#f87171'}}>{toast.m}</div>}
@@ -227,7 +291,7 @@ export default function Home(){
         <div style={{background:'#0f1c2e',border:'1px solid #1e3050',borderRadius:18,overflow:'hidden'}}>
           <div style={{padding:'1.2rem 1.5rem',borderBottom:'1px solid #1e3050',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'0.95rem'}}>Registo de Licenças</div>
-            <div style={{fontSize:'0.8rem',color:'#526480'}}>{fil.length} de {tot} registos</div>
+            <div style={{fontSize:'0.8rem',color:'#526480'}}>{loading ? 'A carregar...' : `${fil.length} de ${tot} registos`}</div>
           </div>
           <div style={{overflowX:'auto'}}>
             <table style={{width:'100%',borderCollapse:'collapse',whiteSpace:'nowrap'}}>
@@ -235,7 +299,9 @@ export default function Home(){
                 <th key={lbl} style={s.th} onClick={()=>col&&hs(col)}>{lbl}{col&&sc===col?(sd===1?' ↑':' ↓'):col?' ↕':''}</th>
               ))}</tr></thead>
               <tbody>
-                {fil.length===0?<tr><td colSpan={9} style={{...s.td,textAlign:'center',padding:'4rem',color:'#526480',borderBottom:'none'}}>
+                {loading ? (
+                   <tr><td colSpan={9} style={{...s.td,textAlign:'center',padding:'4rem',color:'#526480',borderBottom:'none'}}>A carregar licenças da base de dados...</td></tr>
+                ) : fil.length===0?<tr><td colSpan={9} style={{...s.td,textAlign:'center',padding:'4rem',color:'#526480',borderBottom:'none'}}>
                   <div style={{fontSize:'3rem',marginBottom:'1rem',opacity:0.3}}>📭</div>
                   <div>Nenhuma licença encontrada.</div>
                   <button style={{...s.btn,...s.bp,marginTop:'1rem'}} onClick={oa}>Adicionar Licença</button>
@@ -270,7 +336,7 @@ export default function Home(){
           <div style={{fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:'1.25rem',marginBottom:'1.5rem',display:'flex',alignItems:'center',gap:10}}>{eid?'✏️ Editar':'➕ Adicionar'} Licença</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1.1rem'}}>
             {[{l:'Nome do Utilizador *',k:'usuario',t:'text',p:'Ex: João Silva'},{l:'Email',k:'email',t:'email',p:'joao@empresa.ao'}].map(({l,k,t,p})=>(
-              <div key={k}><label style={s.lb}>{l}</label><input style={s.ip} type={t} placeholder={p} value={form[k as keyof typeof form]} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))}/></div>
+              <div key={k}><label style={s.lb}>{l}</label><input style={s.ip} type={t} placeholder={p} value={(form as any)[k]} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))}/></div>
             ))}
             <div><label style={s.lb}>Departamento *</label><select style={{...s.ip,cursor:'pointer'}} value={form.departamento} onChange={e=>setForm(f=>({...f,departamento:e.target.value}))}><option value="">Seleccionar...</option>{DEPT.map(d=><option key={d} value={d}>{d}</option>)}</select></div>
             <div><label style={s.lb}>Software *</label><select style={{...s.ip,cursor:'pointer'}} value={form.software} onChange={e=>setForm(f=>({...f,software:e.target.value}))}><option value="">Seleccionar...</option>{SW.map(sw=><option key={sw} value={sw}>{sw}</option>)}</select></div>
