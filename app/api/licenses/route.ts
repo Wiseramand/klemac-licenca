@@ -7,9 +7,9 @@ export async function GET() {
       orderBy: { data_expiracao: 'asc' }
     })
     return NextResponse.json(licenses)
-  } catch (error) {
+  } catch (error: any) {
     console.error('API Error (GET):', error)
-    return NextResponse.json({ error: 'Failed to fetch licenses' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch licenses', details: error.message }, { status: 500 })
   }
 }
 
@@ -21,8 +21,8 @@ export async function POST(req: Request) {
       data: licenseData
     })
     return NextResponse.json(license)
-  } catch (error) {
+  } catch (error: any) {
     console.error('API Error (POST):', error)
-    return NextResponse.json({ error: 'Failed to create license' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create license', details: error.message }, { status: 500 })
   }
 }

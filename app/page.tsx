@@ -185,10 +185,11 @@ export default function Home(){
         t(eid ? 'Licença actualizada!' : 'Licença adicionada!', 's')
         setSfm(false)
       } else {
-        t('Erro ao salvar no servidor.', 'e')
+        const errorData = await res.json().catch(() => ({}))
+        t(`Erro ao salvar: ${errorData.details || 'Verifique o servidor.'}`, 'e')
       }
-    } catch (err) {
-      t('Erro de ligação.', 'e')
+    } catch (err: any) {
+      t(`Erro de ligação: ${err.message}`, 'e')
     }
   }
 
@@ -201,10 +202,11 @@ export default function Home(){
         setSdl(false)
         t('Licença eliminada.', 'e')
       } else {
-        t('Erro ao eliminar.', 'e')
+        const errorData = await res.json().catch(() => ({}))
+        t(`Erro ao eliminar: ${errorData.details || 'Verifique o servidor.'}`, 'e')
       }
-    } catch (err) {
-      t('Erro de ligação.', 'e')
+    } catch (err: any) {
+      t(`Erro de ligação: ${err.message}`, 'e')
     }
   }
 
